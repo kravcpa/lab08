@@ -19,8 +19,8 @@ class TestDeathNote {
     private DeathNote deathNote;
     private static final String JOHN_DOE = "John Doe";
     private static final String GINA_DOE = "Gina Doe";
-    private static final int SUCCESS_TIME = 40;
-    private static final int FAIL_TIME = 100;
+    private static final int DETAILS_FAIL_TIME = 40;
+    private static final int CAUSE_FAIL_TIME = 100;
 
     @BeforeEach
     public void setUp() {
@@ -61,15 +61,23 @@ class TestDeathNote {
         assertTrue(deathNote.writeDeathCause("karting accident"));
         assertEquals("karting accident", deathNote.getDeathCause(GINA_DOE));
         
-        sleep(FAIL_TIME);
+        sleep(CAUSE_FAIL_TIME);
         
-        assertFalse(deathNote.writeDeathCause("stabbed on the streets"));
+        assertFalse(deathNote.writeDeathCause("stabbed on the streets of nyc"));
         assertEquals("karting accident", deathNote.getDeathCause(GINA_DOE));
     }
 
-    public void testDeathDetails() {
+    public void testDeathDetails() throws InterruptedException {
+        assertThrows(IllegalStateException.class, () -> { deathNote.writeDetails("stage 4 cancer across all organs"); });
         
+        deathNote.writeName(JOHN_DOE);
+        assertTrue(deathNote.getDeathDetails(JOHN_DOE).isEmpty());
+        assertTrue(deathNote.writeDetails("ran for too long"));
+        assertEquals("ran for too long", deathNote.getDeathDetails(JOHN_DOE));
+
+        deathNote.writeName(GINA_DOE);
+        sleep(DETAILS_FAIL_TIME);
+        assertFalse(deathNote.writeDetails("was intoxicated by mushrooms"));
+        assertTrue(deathNote.getDeathDetails(JOHN_DOE).isEmpty());
     }
-
-
 }
